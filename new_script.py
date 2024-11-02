@@ -8,8 +8,10 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # VirtualBox VM configuration
-vm_name = 'Ret Ka Baksa'  # replace with the name of your VM
-snapshot_name = 'Clean1'
+vm_name = 'CorontineBox'  # replace with the name of your VM
+snapshot_name = 'Clean'
+username = 'corontinebox'
+password = 'admin'
 
 # Directory with malware samples and log path
 main_dir = 'samples'
@@ -53,19 +55,21 @@ def copy_malware_to_vm(malware):
     shared_folder_path = f'{malware_dir}/{malware}'  # Adjust path based on VM shared folder mounting
     vm_malware_path = "/tmp/malware"
     logging.info("Copying malware from shared folder to VM execution path.")
-    os.system(f'VBoxManage guestcontrol "{vm_name}" copyfrom "{shared_folder_path}" "{vm_malware_path}" --username "retkabaksa" --password "retkabaksa"')
+    os.system(f'VBoxManage guestcontrol "{vm_name}" copyto "{shared_folder_path}" "{vm_malware_path}" --username {username} --password {password}')
+    os.system(f'VBoxManage guestcontrol "{vm_name}" run --username {username} --password {password} -- /bin/chmod +x {vm_malware_path}')
     time.sleep(5)
 
 # Function to run malware in VM
 def run_malware_in_vm():
     logging.info("Running malware in VM.")
-    os.system(f'VBoxManage guestcontrol "{vm_name}" run --username retkabaksa --password retkabaksa -- /tmp/malware')
+    os.system(f'VBoxManage guestcontrol "{vm_name}" run --username {username} --password {password} -- /tmp/malware')
     time.sleep(120)
 
 # Function to copy logs from VM to host
 def copy_logs_from_vm(malware_log):
     logging.info("Copying logs from VM to host.")
-    os.system(f'VBoxManage guestcontrol "{vm_name}" copyfrom "/var/log/osquery/osqueryd.results.log" "{malware_log}" --username retkabaksa --password retkabaksa')
+    # os.system(f'VBoxManage guestcontrol "{vm_name}" run --username {username} --password {password} -- /bin/chown {username} /var/log/osquery/osqueryd.results.log')
+    os.system(f'VBoxManage guestcontrol "{vm_name}" copyfrom "/var/log/osquery/osqueryd.results.log" "{malware_log}" --username {username} --password {password}')
     time.sleep(10)
 
 # Function to stop VM
@@ -88,7 +92,7 @@ def process_malware_samples():
             # Workflow steps
             revert_vm_to_snapshot()
             start_vm()
-            setup_shared_folder()
+            # setup_shared_folder()
             copy_malware_to_vm(malware)
             run_malware_in_vm()
             copy_logs_from_vm(log_path)
