@@ -59,6 +59,16 @@ def copy_malware_to_vm(malware):
     os.system(f'VBoxManage guestcontrol "{vm_name}" run --username {username} --password {password} -- /bin/chmod +x {vm_malware_path}')
     time.sleep(5)
 
+# def copy_malware_to_vm(malware):
+#     shared_folder_path = f'{malware_dir}/{malware}'  # Adjust path based on VM shared folder mounting
+#     vm_malware_path = "/tmp/sample"
+#     vm_zip_path = "/tmp"
+#     logging.info("Copying malware from shared folder to VM execution path.")
+#     os.system(f'VBoxManage guestcontrol "{vm_name}" copyto "{shared_folder_path}" "{vm_zip_path}/{malware}" --username {username} --password {password}')
+#     os.system(f'VBoxManage guestcontrol "{vm_name}" run --username {username} --password {password} -- /usr/bin/unzip -P infected {vm_zip_path}/{malware} -d {vm_malware_path}')
+#     os.system(f'VBoxManage guestcontrol "{vm_name}" run --username {username} --password {password} -- /bin/chmod +x {vm_malware_path}')
+#     time.sleep(5)
+
 # Function to run malware in VM
 def run_malware_in_vm():
     logging.info("Running malware in VM.")
