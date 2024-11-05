@@ -3,7 +3,7 @@ import time
 from os import listdir
 from os.path import isfile, join
 import logging
-
+from get_malware import download_malware_samples
 # Logging setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -70,10 +70,10 @@ def copy_malware_to_vm(malware):
 #     time.sleep(5)
 
 # Function to run malware in VM
-def run_malware_in_vm():
+def run_malware_in_vm(time_to_run):
     logging.info("Running malware in VM.")
     os.system(f'VBoxManage guestcontrol "{vm_name}" run --username {username} --password {password} -- /tmp/malware')
-    time.sleep(120)
+    time.sleep(time_to_run)
 
 # Function to copy logs from VM to host
 def copy_logs_from_vm(malware_log):
@@ -89,7 +89,7 @@ def stop_vm():
     time.sleep(5)
 
 # Main malware processing loop
-def process_malware_samples():
+def process_malware_samples(time_to_run):
     malware_files = [f for f in listdir(malware_dir) if isfile(join(malware_dir, f))]
     
     for malware in malware_files:
@@ -104,7 +104,7 @@ def process_malware_samples():
             start_vm()
             # setup_shared_folder()
             copy_malware_to_vm(malware)
-            run_malware_in_vm()
+            run_malware_in_vm(time_to_run)
             copy_logs_from_vm(log_path)
             stop_vm()
             
@@ -117,4 +117,11 @@ def process_malware_samples():
 
 # Run the main malware automation process
 if __name__ == "__main__":
-    process_malware_samples()
+    print("Welcome to CorontineBox, Malware Sandbox")
+    print("1. Run Malware\n2. Download malware")
+    choice = int(input("Select choice: "))
+    if choice == 1:
+        time_to_run = int(input("For how much time you want to run Malware sample (seconds): "))
+        process_malware_samples(time_to_run)
+    elif choice == 2:
+        download_malware_samples()
